@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
 
 namespace TCPTools.Logging
 {
@@ -11,12 +8,10 @@ namespace TCPTools.Logging
         {
             var date = DateTime.Now.ToString("hh:mm:ss");
 
-            Console.Write("["+ date + "] ");
             if (log is String && arg.Length > 0)
-                Console.Write(log as string, arg);
+                Console.WriteLine("[" + date + "] " + log, arg);
             else
-                Console.Write(log);
-            Console.Write("\n");
+                Console.WriteLine("[" + date + "] {0}", log);
 
             Console.ResetColor();
         }

@@ -1,0 +1,17 @@
+G:\2020\Networking\TCPTools\ExampleTCPClient\bin\Debug\netcoreapp3.1\ExampleTCPClient.exe
+G:\2020\Networking\TCPTools\ExampleTCPClient\bin\Debug\netcoreapp3.1\ExampleTCPClient.deps.json
+G:\2020\Networking\TCPTools\ExampleTCPClient\bin\Debug\netcoreapp3.1\ExampleTCPClient.runtimeconfig.json
+G:\2020\Networking\TCPTools\ExampleTCPClient\bin\Debug\netcoreapp3.1\ExampleTCPClient.runtimeconfig.dev.json
+G:\2020\Networking\TCPTools\ExampleTCPClient\bin\Debug\netcoreapp3.1\ExampleTCPClient.dll
+G:\2020\Networking\TCPTools\ExampleTCPClient\bin\Debug\netcoreapp3.1\ExampleTCPClient.pdb
+G:\2020\Networking\TCPTools\ExampleTCPClient\bin\Debug\netcoreapp3.1\TCPTools.dll
+G:\2020\Networking\TCPTools\ExampleTCPClient\bin\Debug\netcoreapp3.1\TCPTools.pdb
+G:\2020\Networking\TCPTools\ExampleTCPClient\obj\Debug\netcoreapp3.1\ExampleTCPClient.csprojAssemblyReference.cache
+G:\2020\Networking\TCPTools\ExampleTCPClient\obj\Debug\netcoreapp3.1\ExampleTCPClient.AssemblyInfoInputs.cache
+G:\2020\Networking\TCPTools\ExampleTCPClient\obj\Debug\netcoreapp3.1\ExampleTCPClient.AssemblyInfo.cs
+G:\2020\Networking\TCPTools\ExampleTCPClient\obj\Debug\netcoreapp3.1\ExampleTCPClient.csproj.CopyComplete
+G:\2020\Networking\TCPTools\ExampleTCPClient\obj\Debug\netcoreapp3.1\ExampleTCPClient.dll
+G:\2020\Networking\TCPTools\ExampleTCPClient\obj\Debug\netcoreapp3.1\ExampleTCPClient.pdb
+G:\2020\Networking\TCPTools\ExampleTCPClient\obj\Debug\netcoreapp3.1\ExampleTCPClient.genruntimeconfig.cache
+G:\2020\Networking\TCPTools\ExampleTCPClient\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+G:\2020\Networking\TCPTools\ExampleTCPClient\obj\Debug\netcoreapp3.1\ExampleTCPClient.csproj.CoreCompileInputs.cache

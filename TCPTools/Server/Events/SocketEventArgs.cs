@@ -31,13 +31,15 @@ namespace TCPTools.Server.Events
 
     public class SocketReceivedDataEventArgs : EventArgs
     {
-        public SocketReceivedDataEventArgs(SocketClient _client, SocketData _data)
+        public SocketReceivedDataEventArgs(SocketClient _client, SocketData _socketData, string _data)
         {
             client = _client;
+            socketData = _socketData;
             data = _data;
         }
 
-        public SocketClient client;
-        public SocketData data { get; set; }
+        public SocketClient client { get; set; }
+        public SocketData socketData { get; set; }
+        public string data { get; set; }
     }
 }

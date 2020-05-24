@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -11,6 +12,7 @@ using TCPTools.Logging;
 using TCPTools.Server.Events;
 using TCPTools.Structure;
 using Newtonsoft.Json;
+using TCPTools.Client.Data;
 using TCPTools.Static;
 
 // REWRITE WITH THIS https://www.codeproject.com/Articles/1243360/TCP-Socket-Off-the-shelf-Revisited-with-Async-Awai
@@ -21,7 +23,6 @@ namespace TCPTools.Server
     {
         public static ManualResetEvent allDone = new ManualResetEvent(false);
 
-        // Options
         public int port;
         public Socket listener;
         public IPEndPoint localEndPoint;
@@ -32,10 +33,13 @@ namespace TCPTools.Server
 
         public Events.EventHandler eventHandler;
 
+        public ServerDataHandler dataHandler = new ServerDataHandler();
+
         public Server()
         {
             eventHandler = new Events.EventHandler();
         }
+
 
         public void CreateServer(int port)
         {
@@ -43,26 +47,24 @@ namespace TCPTools.Server
 
             connectedSockets = new List<SocketClient>();
 
-            (Socket, IPEndPoint) socketData = CreateSocket();
-            listener = socketData.Item1;
-            localEndPoint = socketData.Item2;
+            (Socket socket, IPEndPoint ipEndPoint) = CreateSocket();
+            listener = socket;
+            localEndPoint = ipEndPoint;
 
             StartSocketServer();
         }
-
         public (Socket, IPEndPoint) CreateSocket()
         {
             // Get starting ip address and port
             IPAddress ipAddress = IP.GetIp(port);
-            IPEndPoint localEndPoint = IP.GetLocalEndPoint(port);
+            IPEndPoint ipEndPoint = IP.GetLocalEndPoint(port);
 
-            Logger.Info("Server adress set to {0}:{1}", localEndPoint.Address, localEndPoint.Port);
+            Logger.Info("Server address set to {0}:{1}", ipEndPoint.Address, ipEndPoint.Port);
 
-            // Create the TCP/IP socket.  
-            Socket listener = new Socket(ipAddress.AddressFamily,
-                SocketType.Stream, ProtocolType.Tcp);
+            // Create the TCP/IP socket.
+            Socket socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            return (listener, localEndPoint);
+            return (socket, ipEndPoint);
         }
 
         public void StartSocketServer()
@@ -77,8 +79,8 @@ namespace TCPTools.Server
                 {
                     allDone.Reset();
 
+                    Logger.Warn("Listening for new connections");
                     // Start an asynchronous socket to listen for connections.
-                    Logger.Info("Waiting for a connection...");
                     listener.BeginAccept(
                         new AsyncCallback(AcceptCallback),
                         listener);
@@ -95,75 +97,75 @@ namespace TCPTools.Server
 
         public void AcceptCallback(IAsyncResult ar)
         {
-            // Unpause the main accept connection thread, accept new connections as this one has been accepted.
-            allDone.Set();
+            try
+            {
+                // Resume the main accept connection thread, accept new connections as this one has been accepted.
+                allDone.Set();
 
-            // Get the socket that handles the client request.  
-            Socket listener = (Socket)ar.AsyncState;
-            Socket handler = listener.EndAccept(ar);
+                // Get the socket that handles the tcpClient request.  
+                Socket asyncState = (Socket)ar.AsyncState;
+                Socket handler = asyncState.EndAccept(ar);
 
-            // Create a SocketClient objject, contains main state for all connected clients.
-            SocketClient socketClient = new SocketClient(Guid.NewGuid().ToString("N"), handler);
-            connectedSockets.Add(socketClient);
+                // Create a SocketClient object, contains main state for all connected clients.
+                SocketClient socketClient = new SocketClient(Guid.NewGuid().ToString("N"), handler);
+                connectedSockets.Add(socketClient);
 
-            Logger.Info("Connecting a new client");
-            // Trigger a accepted a new connection event.
-            eventHandler.TriggerSocketConnectedEvent(socketClient);
+                Logger.Info("Connecting a new tcpClient");
+                // Trigger a accepted a new connection event.
 
-            PingData pingData = new PingData(5000, 0);
-            socketClient.SendData(pingData);
+                handler.BeginReceive(socketClient.buffer, 0, bufferSize, 0, new AsyncCallback(ReadCallback), socketClient);
 
-            handler.BeginReceive(socketClient.buffer, 0, bufferSize, 0, new AsyncCallback(ReadCallback), socketClient);
+                HelloData helloData = new HelloData(socketClient.pingMsClient, socketClient.sequence);
+                socketClient.SendData(helloData);
+
+                eventHandler.TriggerSocketConnectedEvent(socketClient);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
         }
 
         public void ReadCallback(IAsyncResult ar)
         {
             try
             {
-                String content = String.Empty;
-
                 SocketClient socketClient = (SocketClient)ar.AsyncState;
                 socketClient = connectedSockets.Find(x => x.id == socketClient.id);
 
-                // Read data from the client socket.
-                int bytesRead = socketClient.socket.EndReceive(ar);
-                if (bytesRead > 0)
+                // Read data from the tcpClient socket.
+                var bytesRead = socketClient.socket.EndReceive(ar);
+                if (bytesRead <= 0) return;
+
+                // Append current data, as more data might be sent
+                socketClient.sb.Append(Encoding.UTF8.GetString(socketClient.buffer, 0, bytesRead));
+
+                var content = socketClient.sb.ToString();
+
+                // Check for end of data tag
+                if (content.Contains("<EOF>"))
                 {
-                    // Append current data, as more data might be sent
-                    socketClient.sb.Append(Encoding.ASCII.GetString(socketClient.buffer, 0, bytesRead));
+                    // Remove end of line from data
+                    content = content.Replace("<EOF>", "");
 
-                    content = socketClient.sb.ToString();
+                    // Reset the data from memory, get ready for new data
+                    socketClient.sb = new StringBuilder();
+                    socketClient.buffer = new byte[socketClient.buffer.Length];
 
-                    // Check for end of data tag
-                    if (content.EndsWith("<EOF>"))
-                    {
-                        // Remove end of line from data
-                        content = content.Replace("<EOF>", "");
+                    SocketData data = JsonConvert.DeserializeObject<SocketData>(content);
 
-                        // Reset the data from memory, get ready for new data
-                        socketClient.sb = new StringBuilder();
-                        socketClient.buffer = new Byte[socketClient.buffer.Length];
-
-                        Console.WriteLine(content + " with EOF");
-
-                        SocketData data = JsonConvert.DeserializeObject<SocketData>(content);
-
-                        eventHandler.TriggerSocketReceivedDataEvent(socketClient, data);
-
-                        // Start listening for new data to come
-                        socketClient.socket.BeginReceive(socketClient.buffer, 0, bufferSize, 0, new AsyncCallback(ReadCallback), socketClient);
-                    }
-                    else
-                    {
-                        // Request more data if End Of Line was not found <EOF>
-                        socketClient.socket.BeginReceive(socketClient.buffer, 0, bufferSize, 0, new AsyncCallback(ReadCallback), socketClient);
-                    }
+                    dataHandler.ReceivedData(data.O, content, this, socketClient.id);
+                    eventHandler.TriggerSocketReceivedDataEvent(socketClient, data, content);
                 }
+
+                // Listen for new data
+                socketClient.socket.BeginReceive(socketClient.buffer, 0, bufferSize, 0, new AsyncCallback(ReadCallback), socketClient);
             } catch (Exception ex)
             {
-                Logger.Error(ex);
+                if (!ex.Message.Contains("forcibly closed by the remote host"))
+                    Logger.Error(ex);
 
-                // If it fails to read, disconnect the client (this might be a bottle neck in the future, hmm)
+                // If it fails to read, disconnect the tcpClient (this might be a bottle neck in the future, hmm)
                 SocketClient socketClient = (SocketClient)ar.AsyncState;
                 connectedSockets.RemoveAt(connectedSockets.FindIndex(x => x.id == socketClient.id));
                 socketClient.socket.Shutdown(SocketShutdown.Both);

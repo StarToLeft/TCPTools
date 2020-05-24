@@ -1,0 +1,17 @@
+G:\2020\Networking\TCPTools\ExampleTCPServer\bin\Debug\netcoreapp3.1\ExampleTCPServer.exe
+G:\2020\Networking\TCPTools\ExampleTCPServer\bin\Debug\netcoreapp3.1\ExampleTCPServer.deps.json
+G:\2020\Networking\TCPTools\ExampleTCPServer\bin\Debug\netcoreapp3.1\ExampleTCPServer.runtimeconfig.json
+G:\2020\Networking\TCPTools\ExampleTCPServer\bin\Debug\netcoreapp3.1\ExampleTCPServer.runtimeconfig.dev.json
+G:\2020\Networking\TCPTools\ExampleTCPServer\bin\Debug\netcoreapp3.1\ExampleTCPServer.dll
+G:\2020\Networking\TCPTools\ExampleTCPServer\bin\Debug\netcoreapp3.1\ExampleTCPServer.pdb
+G:\2020\Networking\TCPTools\ExampleTCPServer\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+G:\2020\Networking\TCPTools\ExampleTCPServer\bin\Debug\netcoreapp3.1\TCPTools.dll
+G:\2020\Networking\TCPTools\ExampleTCPServer\bin\Debug\netcoreapp3.1\TCPTools.pdb
+G:\2020\Networking\TCPTools\ExampleTCPServer\obj\Debug\netcoreapp3.1\ExampleTCPServer.csproj.CoreCompileInputs.cache
+G:\2020\Networking\TCPTools\ExampleTCPServer\obj\Debug\netcoreapp3.1\ExampleTCPServer.AssemblyInfoInputs.cache
+G:\2020\Networking\TCPTools\ExampleTCPServer\obj\Debug\netcoreapp3.1\ExampleTCPServer.AssemblyInfo.cs
+G:\2020\Networking\TCPTools\ExampleTCPServer\obj\Debug\netcoreapp3.1\ExampleTCPServer.csproj.CopyComplete
+G:\2020\Networking\TCPTools\ExampleTCPServer\obj\Debug\netcoreapp3.1\ExampleTCPServer.dll
+G:\2020\Networking\TCPTools\ExampleTCPServer\obj\Debug\netcoreapp3.1\ExampleTCPServer.pdb
+G:\2020\Networking\TCPTools\ExampleTCPServer\obj\Debug\netcoreapp3.1\ExampleTCPServer.genruntimeconfig.cache
+G:\2020\Networking\TCPTools\ExampleTCPServer\obj\Debug\netcoreapp3.1\ExampleTCPServer.csprojAssemblyReference.cache

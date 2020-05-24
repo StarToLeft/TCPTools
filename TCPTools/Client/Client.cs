@@ -2,15 +2,18 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
-using TCPController.Client.Data;
+using System.Threading;
+using TCPTools.Client.Data;
+using TCPTools.Client.Events;
 using TCPTools.Logging;
 using TCPTools.Static;
 using TCPTools.Structure;
 
 namespace TCPTools.Client
 {
-    class Client
+    public class Client
     {
         public Client(int port)
         {
@@ -18,70 +21,104 @@ namespace TCPTools.Client
         }
 
         public int port;
+        public bool isConnected;
 
-        public TcpClient client;
+        public HelloData helloData;
+
+        // Connection
+        public TcpClient tcpClient;
         public NetworkStream stream;
 
-        public State state = new State();
+        // Data-handler, handles what data should be triggered to events 
+        public ClientDataHandler dataHandler = new ClientDataHandler();
+        public ClientEventHandler eventHandler = new ClientEventHandler();
 
-        public DataHandler dataHandler = new DataHandler();
+        // The current socket state
+        public State socket;
 
-        public void Connect(IPEndPoint ipEndPoint = null)
+        private int _amountOfRetries = 0;
+
+        public void Connect(IPEndPoint ipEndPoint = null, int maxRetries = 10)
         {
-            if (ipEndPoint == null)
+            var notConnected = true;
+
+            while (notConnected)
             {
-                ipEndPoint = IP.GetLocalEndPoint(port);
+                if (_amountOfRetries >= maxRetries) return;
+
+                _amountOfRetries++;
+
+                try
+                {
+                    if (ipEndPoint == null)
+                    {
+                        ipEndPoint = IP.GetLocalEndPoint(port);
+                    }
+
+                    tcpClient = new TcpClient(ipEndPoint.Address.ToString(), ipEndPoint.Port);
+                    stream = tcpClient.GetStream();
+
+                    socket = new State(this);
+
+                    tcpClient.SendBufferSize = State.BufferSize;
+                    tcpClient.ReceiveBufferSize = State.BufferSize;
+
+                    stream.BeginRead(socket.buffer, 0, tcpClient.SendBufferSize, BeginReceive, socket);
+                    eventHandler.TriggerSocketConnectedEvent();
+                    notConnected = false;
+                    isConnected = true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                    stream = null;
+                    tcpClient = null;
+                    socket = null;
+                }
             }
 
-            client = new TcpClient(ipEndPoint.Address.ToString(), ipEndPoint.Port);
-            stream = client.GetStream();
-
-            client.SendBufferSize = State.bufferSize;
-            client.ReceiveBufferSize = State.bufferSize;
-
-            Logger.Info("Client: Connecting to server");
-
-            stream.BeginRead(state.buffer, 0, client.SendBufferSize, new AsyncCallback(BeginReceive), state);
+            isConnected = false;
         }
 
         private void BeginReceive(IAsyncResult ar)
         {
             try
             {
-                int bytesRead = stream.EndRead(ar);
+                var bytesRead = stream.EndRead(ar);
 
                 if (bytesRead > 0)
                 {
-                    String content = String.Empty;
-
-                    state.sb.Append(Encoding.UTF8.GetString(state.buffer));
-                    content = state.sb.ToString();
-
-                    Logger.Log("Client: Found data");
+                    socket.sb.Append(Encoding.UTF8.GetString(socket.buffer));
+                    var content = socket.sb.ToString();
 
                     if (content.Contains("<EOF>"))
                     {
                         content = content.Replace("<EOF>", "");
 
-                        state.buffer = new Byte[State.bufferSize];
-                        state.sb = new StringBuilder();
+                        socket.buffer = new byte[State.BufferSize];
+                        socket.sb = new StringBuilder();
 
                         SocketData socketData = JsonConvert.DeserializeObject<SocketData>(content);
+                        if (socketData.S > socket.sequence)
+                            socket.sequence = socketData.S;
 
                         ReceivedData(socketData.O, content);
+                        eventHandler.TriggerSocketReceivedDataEvent(socketData, content);
                     }
                 }
 
-                stream.BeginRead(state.buffer, 0, client.SendBufferSize, new AsyncCallback(BeginReceive), state);
-            } catch
+                stream.BeginRead(socket.buffer, 0, tcpClient.SendBufferSize, BeginReceive, socket);
+            } catch (Exception ex)
             {
-                client.Close();
+                Logger.Error("Begin receive error: " + ex);
+                tcpClient.Close();
+                eventHandler.TriggerSocketDisconnectedEvent();
             }
         }
 
         private void ReceivedData(Opcode o, string content)
         {
-            dataHandler.ReceivedData(o, content);
+            dataHandler.ReceivedData(o, content, this);
         }
     }
 }

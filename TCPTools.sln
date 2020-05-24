@@ -5,6 +5,13 @@ VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TCPTools", "TCPTools\TCPTools.csproj", "{77545124-23A3-49A0-A161-37481AF5C482}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleTCPClient", "ExampleTCPClient\ExampleTCPClient.csproj", "{7CE3740F-035E-427C-835D-F91AB36CDCF0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{77545124-23A3-49A0-A161-37481AF5C482} = {77545124-23A3-49A0-A161-37481AF5C482}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleTCPServer", "ExampleTCPServer\ExampleTCPServer.csproj", "{595D553B-672C-4740-A98F-071404B22AFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +22,14 @@ Global
 		{77545124-23A3-49A0-A161-37481AF5C482}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77545124-23A3-49A0-A161-37481AF5C482}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77545124-23A3-49A0-A161-37481AF5C482}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CE3740F-035E-427C-835D-F91AB36CDCF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CE3740F-035E-427C-835D-F91AB36CDCF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CE3740F-035E-427C-835D-F91AB36CDCF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CE3740F-035E-427C-835D-F91AB36CDCF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{595D553B-672C-4740-A98F-071404B22AFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{595D553B-672C-4740-A98F-071404B22AFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{595D553B-672C-4740-A98F-071404B22AFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{595D553B-672C-4740-A98F-071404B22AFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

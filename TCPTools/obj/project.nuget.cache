@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "oOvGwy/XtrEqwLXq/8+8AxT0Wvco0trd8gdak7qu0lMpQGmo+pa8V8n6Z29TtQRzWwia/xRrUOZbHN292Gq37w==",
+  "success": true,
+  "projectFilePath": "G:\\2020\\Networking\\TCPTools\\TCPTools\\TCPTools.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\anton\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

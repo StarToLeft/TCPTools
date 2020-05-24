@@ -30,49 +30,57 @@ namespace TCPTools.Server.Client
         public StringBuilder sb = new StringBuilder();
 
         public DateTimeOffset lastPing;
+        public int pingMsClient = 2000;
+        public int pingMsServer = 3000;
+        
+        public int sequence;
 
-        public int pingMs = 5000;
-        public int sendNumber = 0; // Number of sent and recieved data
+        // To append on last line
+        private readonly byte[] _endData = Encoding.UTF8.GetBytes("<EOF>");
 
-        private byte[] endData = Encoding.UTF8.GetBytes("<EOF>");
-
-        public bool SendData(SocketData obj)
+        public void SendData(SocketData obj)
         {
-            byte[] byteData;
+            obj.S = sequence++;
 
-            byteData = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj)); 
-
-            IEnumerable<byte[]> dataArray = ByteHelper.Split(byteData, 1024).ToList();
-
-            Console.WriteLine(Encoding.UTF8.GetString(byteData));
-
-            dataArray.ToList().ForEach(x =>
-            {
-                SendData(x);
-            });
-
-            return true;
+            var byteData = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj));
+            SendData(byteData, true);
         }
 
-        public bool SendData(byte[] data)
+        public void SendData(byte[] data, bool didUpdateSequence = false)
         {
-            sendNumber++;
-
             try
             {
-                if (data == null) return false;
+                IEnumerable<byte[]> dataArray = data.Split(1024).ToList();
 
-                byte[] newData = ByteHelper.Combine(data, endData);
+                var dataArrayChunks = dataArray.ToList();
 
-                socket.BeginSend(newData, 0, newData.Length, 0, new AsyncCallback(SendCallback), socket);
+                for (var i = 0; i < dataArrayChunks.Count; i++)
+                {
+                    try
+                    {
+                        var dataToWrite = dataArrayChunks[i];
+                        if (i == dataArrayChunks.Count - 1) dataToWrite = ByteHelper.Combine(dataToWrite, _endData);
 
-                Logger.Warn("Debugging SendData: Sending data");
+                        if (socket.Connected)
+                            socket.BeginSend(dataToWrite, 0, dataToWrite.Length, 0, SendCallback, socket);
+                        else throw new Exception("Not connected");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
 
-                return true;
-            } catch
+                        if (didUpdateSequence)
+                            sequence--;
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
             {
-                sendNumber--;
-                return false;
+                Logger.Error(ex);
+
+                if (didUpdateSequence)
+                    sequence--;
             }
         }
 
@@ -81,25 +89,14 @@ namespace TCPTools.Server.Client
             try
             {
                 Socket handler = (Socket)ar.AsyncState;
-                int bytesSent = handler.EndSend(ar);
+                var bytesSent = handler.EndSend(ar);
 
                 // Trigger success event
-                Logger.Warn("Debugging SendData: Sent data");
             }
-            catch
+            catch (Exception ex)
             {
-                sendNumber--;
-                Logger.Error("Failed to send data");
-            }
-        }
-
-        public void ReceivedHeartBeat(SocketData data)
-        {
-            var pingData = data as PingData;
-
-            if (pingData.S != sendNumber)
-            {
-                SendData(new ErrorData(Error.IncorrectSendNumber));
+                sequence--;
+                Logger.Error(ex);
             }
         }
     }

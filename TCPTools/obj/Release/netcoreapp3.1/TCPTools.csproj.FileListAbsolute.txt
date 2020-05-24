@@ -1,0 +1,11 @@
+G:\2020\Networking\TCPTools\TCPTools\obj\Release\netcoreapp3.1\TCPTools.csprojAssemblyReference.cache
+G:\2020\Networking\TCPTools\TCPTools\obj\Release\netcoreapp3.1\TCPTools.Properties.Resources.resources
+G:\2020\Networking\TCPTools\TCPTools\obj\Release\netcoreapp3.1\TCPTools.csproj.GenerateResource.cache
+G:\2020\Networking\TCPTools\TCPTools\obj\Release\netcoreapp3.1\TCPTools.csproj.CoreCompileInputs.cache
+G:\2020\Networking\TCPTools\TCPTools\obj\Release\netcoreapp3.1\TCPTools.AssemblyInfoInputs.cache
+G:\2020\Networking\TCPTools\TCPTools\obj\Release\netcoreapp3.1\TCPTools.AssemblyInfo.cs
+G:\2020\Networking\TCPTools\TCPTools\bin\Release\netcoreapp3.1\TCPTools.deps.json
+G:\2020\Networking\TCPTools\TCPTools\bin\Release\netcoreapp3.1\TCPTools.dll
+G:\2020\Networking\TCPTools\TCPTools\bin\Release\netcoreapp3.1\TCPTools.pdb
+G:\2020\Networking\TCPTools\TCPTools\obj\Release\netcoreapp3.1\TCPTools.dll
+G:\2020\Networking\TCPTools\TCPTools\obj\Release\netcoreapp3.1\TCPTools.pdb
